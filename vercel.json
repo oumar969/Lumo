@@ -1,1 +1,26 @@
-{"version":2}
+{
+  "version": 2,
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs20.x",
+      "maxDuration": 10
+    }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin",  "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PATCH,DELETE,OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Authorization,Content-Type" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/api/spaces/join",  "destination": "/api/spaces/join.js" },
+    { "source": "/api/spaces",       "destination": "/api/spaces/index.js" },
+    { "source": "/api/canvases",     "destination": "/api/canvases/index.js" },
+    { "source": "/api/users",        "destination": "/api/users/index.js" },
+    { "source": "/api/widgets",      "destination": "/api/widgets/index.js" }
+  ]
+}
