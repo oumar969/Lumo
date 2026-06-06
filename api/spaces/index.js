@@ -51,7 +51,37 @@ export default async function handler(req, res) {
         sql: "SELECT s.*, sm.role FROM spaces s JOIN space_members sm ON sm.space_id = s.id WHERE sm.user_id = ? ORDER BY s.created_at DESC",
         args: [user.id],
       });
-      return res.status(200).json(spaces.rows);
+
+      if (spaces.rows.length === 0) return res.status(200).json([]);
+
+      // Fetch all members for every space the user belongs to in one query
+      const membersRes = await db.execute({
+        sql: `SELECT sm.space_id, sm.user_id, sm.role, u.display_name
+              FROM space_members sm
+              JOIN users u ON u.id = sm.user_id
+              WHERE sm.space_id IN (
+                SELECT space_id FROM space_members WHERE user_id = ?
+              )`,
+        args: [user.id],
+      });
+
+      // Group members by space_id
+      const membersBySpace = {};
+      for (const row of membersRes.rows) {
+        if (!membersBySpace[row.space_id]) membersBySpace[row.space_id] = [];
+        membersBySpace[row.space_id].push({
+          user_id: row.user_id,
+          display_name: row.display_name,
+          role: row.role,
+        });
+      }
+
+      const result = spaces.rows.map((s) => ({
+        ...s,
+        members: membersBySpace[s.id] ?? [],
+      }));
+
+      return res.status(200).json(result);
     }
 
     res.status(405).json({ error: "Method not allowed" });
