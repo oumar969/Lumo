@@ -1,5 +1,6 @@
 ﻿import db from "../../lib/turso.js";
 import { verifyToken } from "../../lib/auth.js";
+import { runCors } from "../../lib/cors.js";
 import { randomUUID } from "crypto";
 
 function generateInviteCode() {
@@ -7,6 +8,8 @@ function generateInviteCode() {
 }
 
 export default async function handler(req, res) {
+  await runCors(req, res);
+  if (req.method === "OPTIONS") return res.status(200).end();
   try {
     const decoded = await verifyToken(req);
     const userRes = await db.execute({

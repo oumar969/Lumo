@@ -1,7 +1,10 @@
 ﻿import db from "../../lib/turso.js";
 import { verifyToken } from "../../lib/auth.js";
+import { runCors } from "../../lib/cors.js";
 
 export default async function handler(req, res) {
+  await runCors(req, res);
+  if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
