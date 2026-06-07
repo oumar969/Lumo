@@ -41,6 +41,34 @@ export default async function handler(req, res) {
       return res.status(200).json(user.rows[0]);
     }
 
+    if (req.method === "PATCH") {
+      const { display_name, avatar_url } = req.body;
+      if (display_name === undefined && avatar_url === undefined) {
+        return res.status(400).json({ error: "display_name or avatar_url is required" });
+      }
+      const existing = await db.execute({
+        sql: "SELECT * FROM users WHERE firebase_uid = ?",
+        args: [decoded.uid],
+      });
+      if (existing.rows.length === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      const current = existing.rows[0];
+      await db.execute({
+        sql: "UPDATE users SET display_name = ?, avatar_url = ? WHERE firebase_uid = ?",
+        args: [
+          display_name !== undefined ? display_name : current.display_name,
+          avatar_url !== undefined ? avatar_url : current.avatar_url,
+          decoded.uid,
+        ],
+      });
+      const updated = await db.execute({
+        sql: "SELECT * FROM users WHERE firebase_uid = ?",
+        args: [decoded.uid],
+      });
+      return res.status(200).json(updated.rows[0]);
+    }
+
     res.status(405).json({ error: "Method not allowed" });
   } catch (err) {
     console.error(err);

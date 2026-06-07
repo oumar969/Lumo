@@ -56,7 +56,7 @@ export default async function handler(req, res) {
 
       // Fetch all members for every space the user belongs to in one query
       const membersRes = await db.execute({
-        sql: `SELECT sm.space_id, sm.user_id, sm.role, u.display_name
+        sql: `SELECT sm.space_id, sm.user_id, sm.role, u.display_name, u.avatar_url
               FROM space_members sm
               JOIN users u ON u.id = sm.user_id
               WHERE sm.space_id IN (
@@ -72,6 +72,7 @@ export default async function handler(req, res) {
         membersBySpace[row.space_id].push({
           user_id: row.user_id,
           display_name: row.display_name,
+          avatar_url: row.avatar_url,
           role: row.role,
         });
       }
