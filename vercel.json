@@ -19,6 +19,7 @@
     { "source": "/api/spaces/join",  "destination": "/api/spaces/join.js" },
     { "source": "/api/spaces",       "destination": "/api/spaces/index.js" },
     { "source": "/api/canvases",     "destination": "/api/canvases/index.js" },
+    { "source": "/api/notes",        "destination": "/api/notes/index.js" },
     { "source": "/api/users",        "destination": "/api/users/index.js" },
     { "source": "/api/widgets",      "destination": "/api/widgets/index.js" }
   ]
